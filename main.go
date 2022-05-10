@@ -54,9 +54,10 @@ func apiServerCmd() *cli.Command {
     Action: func(c *cli.Context) error {
       done := make(chan os.Signal, 1)
       signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
+      // Noob comment: empty struct requires no memory
       stopper := make(chan struct{})
       go func() {
+        // Noob Comment: Block here until a value is received by the channel "done"
         <-done
         close(stopper)
       }()

@@ -14,7 +14,7 @@ import (
 var defaultStopTimeout = time.Second * 30
 
 type APIServer struct {
-	addr string
+	addr    string
 	storage *storage.Storage
 }
 
@@ -38,14 +38,14 @@ func NewAPIServer(addr string, storage *storage.Storage) (*APIServer, error) {
 	}
 
 	return &APIServer{
-		addr: addr,
+		addr:    addr,
 		storage: storage,
 	}, nil
 }
 
 func (s *APIServer) Start(stop <-chan struct{}) error {
 	srv := &http.Server{
-		Addr: s.addr,
+		Addr:    s.addr,
 		Handler: s.router(),
 	}
 
@@ -53,22 +53,30 @@ func (s *APIServer) Start(stop <-chan struct{}) error {
 		fmt.Println("Starting server for " + srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			fmt.Println(err)
-		  }
-			}()
+		}
+	}()
 
- <-stop
- ctx, cancel := context.WithTimeout(context.Background(), defaultStopTimeout)
- defer cancel()
+	<-stop
+	ctx, cancel := context.WithTimeout(context.Background(), defaultStopTimeout)
+	/*
+	 * Noob comment: The context needs to be cancelled to prevent a memory leak.
+	 * Failing to cancel a context leads to the goroutine created by WithTimeout to be retained indefinitely
+	 * https://go.dev/src/context/context.go?s=9162:9288
+	 */
+	defer cancel()
 
- return srv.Shutdown(ctx)
+	return srv.Shutdown(ctx)
 }
 
 func (s *APIServer) router() http.Handler {
-	router := mux.NewRouter()
+	router := mux.NewRouter().PathPrefix("/api").Subrouter()
 
 	router.HandleFunc("/", s.defaultRoute)
-	router.Methods("POST").Path("/items").Handler(Endpoint{s.createItem})
-	router.Methods("GET").Path("/items").Handler(Endpoint{s.listItems})
+	router.Methods("POST").Path("/kanji").Handler(Endpoint{s.createKanji})
+	router.Methods("GET").Path("/kanji/{id}").Handler(Endpoint{s.getKanji})
+	router.Methods("GET").Path("/kanji").Handler(Endpoint{s.listKanji})
+	router.Methods("DELETE").Path("/kanji/{id}").Handler(Endpoint{s.deleteKanji})
+	router.Methods("PATCH").Path("/kanji").Handler(Endpoint{s.updateKanji})
 	return router
 }
 

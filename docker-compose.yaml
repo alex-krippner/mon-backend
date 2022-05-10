@@ -21,6 +21,21 @@ services:
       POSTGRES_DB: api
       POSTGRES_USER: local-dev
       POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+  pgadmin:
+    profiles: ["pgadmin"]
+    image: dpage/pgadmin4:6.8
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mon.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    links:
+      - "db:pgsql-server"
   migrate: &basemigrate
     profiles: ["tools"]
     image: migrate/migrate
@@ -30,10 +45,13 @@ services:
       - db
     volumes:
       - ./migrations:/tmp/migrations
-
+  migrate-down:
+    <<: *basemigrate
+    command: down
   create-migration:
     <<: *basemigrate
     entrypoint: migrate create -dir /tmp/migrations -ext sql
     command: ""
 volumes:
   data:
+  pgadmin-data:

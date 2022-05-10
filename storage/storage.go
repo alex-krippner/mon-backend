@@ -17,7 +17,7 @@ type Scanner interface {
 
 func NewStorage(databaseURL string) (*Storage, error) {
 	conn, err := sql.Open("postgres", databaseURL)
-	if err != nil{
+	if err != nil {
 		return nil, fmt.Errorf("could not open sql: %w", err)
 	}
 
