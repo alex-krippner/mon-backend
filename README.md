@@ -41,7 +41,7 @@ Update modules
 ---
 
 Create new migrations  
-`docker compose --profile tools run create-migration`
+`docker compose --profile tools run create-migration <migration_filename>`
 
 Run migration  
 `docker compose --profile tools run migrate`
