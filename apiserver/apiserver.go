@@ -72,11 +72,9 @@ func (s *APIServer) router() http.Handler {
 	router := mux.NewRouter().PathPrefix("/api").Subrouter()
 
 	router.HandleFunc("/", s.defaultRoute)
-	router.Methods("POST").Path("/kanji").Handler(Endpoint{s.createKanji})
-	router.Methods("GET").Path("/kanji/{id}").Handler(Endpoint{s.getKanji})
-	router.Methods("GET").Path("/kanji").Handler(Endpoint{s.listKanji})
-	router.Methods("DELETE").Path("/kanji/{id}").Handler(Endpoint{s.deleteKanji})
-	router.Methods("PATCH").Path("/kanji").Handler(Endpoint{s.updateKanji})
+	s.addKanjiHandlers(router)
+	s.addVocabHandlers(router)
+
 	return router
 }
 

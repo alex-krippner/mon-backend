@@ -5,10 +5,20 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	str "strings"
 
 	"mon-backend/storage"
+
+	"github.com/gorilla/mux"
 )
+
+func (s *APIServer) addKanjiHandlers(r *mux.Router) {
+
+	r.Methods("POST").Path("/kanji").Handler(Endpoint{s.createKanji})
+	r.Methods("GET").Path("/kanji/{id}").Handler(Endpoint{s.getKanji})
+	r.Methods("GET").Path("/kanji").Handler(Endpoint{s.getAllKanji})
+	r.Methods("PATCH").Path("/kanji").Handler(Endpoint{s.updateKanji})
+	r.Methods("DELETE").Path("/kanji/{id}").Handler(Endpoint{s.deleteKanji})
+}
 
 func (s *APIServer) createKanji(w http.ResponseWriter, req *http.Request) error {
 	var k storage.Kanji
@@ -46,22 +56,39 @@ func (s *APIServer) createKanji(w http.ResponseWriter, req *http.Request) error 
 	return nil
 }
 
-func getIdFromURL(req *http.Request) string {
-
-	splitURL := str.Split(req.URL.String(), "/")
-	return splitURL[len(splitURL)-1]
-}
-
-func (s *APIServer) deleteKanji(w http.ResponseWriter, req *http.Request) error {
-
-	id := getIdFromURL(req)
-	err := s.storage.DeleteKanji(id)
+func (s *APIServer) getKanji(w http.ResponseWriter, req *http.Request) error {
+	id := mux.Vars(req)["id"]
+	kanji, err := s.storage.GetKanji(req.Context(), id)
 
 	if err != nil {
 		return err
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	jsonResponse, err := json.Marshal(kanji)
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+
+	return nil
+}
+
+func (s *APIServer) getAllKanji(w http.ResponseWriter, req *http.Request) error {
+	kanjiSlice, err := s.storage.GetAllKanji(req.Context())
+	if err != nil {
+		return err
+	}
+	jsonResponse, err := json.Marshal(kanjiSlice)
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
 
 	return nil
 }
@@ -97,39 +124,16 @@ func (s *APIServer) updateKanji(w http.ResponseWriter, req *http.Request) error 
 	return nil
 }
 
-func (s *APIServer) getKanji(w http.ResponseWriter, req *http.Request) error {
-	id := getIdFromURL(req)
-	kanji, err := s.storage.GetKanji(req.Context(), id)
+func (s *APIServer) deleteKanji(w http.ResponseWriter, req *http.Request) error {
 
-	if err != nil {
-		return err
-	}
-
-	jsonResponse, err := json.Marshal(kanji)
-
-	if err != nil {
-		return err
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
-
-	return nil
-}
-
-func (s *APIServer) listKanji(w http.ResponseWriter, req *http.Request) error {
-	kanjiSlice, err := s.storage.ListKanji(req.Context())
-	if err != nil {
-		return err
-	}
-	jsonResponse, err := json.Marshal(kanjiSlice)
+	id := mux.Vars(req)["id"]
+	err := s.storage.DeleteKanji(id)
 
 	if err != nil {
 		return err
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(jsonResponse)
 
 	return nil
 }
