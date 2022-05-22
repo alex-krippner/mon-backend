@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS kanji(
   on_reading VARCHAR (50),
   kun_reading VARCHAR (50),
   kanji_rating INT,
-  username VARCHAR (50)
+  username VARCHAR (50),
+  PRIMARY KEY (id)
 );

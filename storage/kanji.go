@@ -6,20 +6,24 @@ import (
 )
 
 type Kanji struct {
-	ID          string
-	Kanji       string
-	OnReading   string
-	KunReading  string
-	KanjiRating int
-	Username    string
+	ID              string
+	Kanji           string
+	ExampleSentence string
+	ExampleWord     string
+	OnReading       string
+	KunReading      string
+	KanjiRating     int
+	Username        string
 }
 
 type CreateKanjiRequest struct {
-	Kanji       string
-	OnReading   string
-	KunReading  string
-	KanjiRating int
-	Username    string
+	Kanji           string
+	ExampleSentence string
+	ExampleWord     string
+	OnReading       string
+	KunReading      string
+	KanjiRating     int
+	Username        string
 }
 
 type UpdateKanjiRequest struct {
@@ -32,7 +36,7 @@ type UpdateKanjiRequest struct {
 
 func ScanKanji(s Scanner) (*Kanji, error) {
 	k := &Kanji{}
-	if err := s.Scan(&k.ID, &k.Kanji, &k.OnReading, &k.KunReading, &k.KanjiRating, &k.Username); err != nil {
+	if err := s.Scan(&k.ID, &k.Kanji, &k.OnReading, &k.KunReading, &k.KanjiRating, &k.Username, &k.ExampleSentence, &k.ExampleWord); err != nil {
 		return nil, err
 	}
 
@@ -40,9 +44,48 @@ func ScanKanji(s Scanner) (*Kanji, error) {
 }
 
 func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji, error) {
-	insertStatement := "INSERT INTO kanji(kanji, on_reading, kun_reading, kanji_rating, username)  VALUES($1,$2,$3,$4,$5) RETURNING id, kanji,on_reading, kun_reading, kanji_rating, username"
-	row := s.conn.QueryRowContext(ctx, insertStatement, k.Kanji, k.OnReading, k.KunReading, k.KanjiRating, k.Username)
-	return ScanKanji(row)
+	// open transaction
+	tx, err := s.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	// defer rollback
+	defer tx.Rollback()
+	// insert into kanji
+	insertKanjiStatement := "INSERT INTO kanji(kanji, on_reading, kun_reading, kanji_rating, username)  VALUES($1,$2,$3,$4,$5);"
+	_, err = tx.ExecContext(ctx, insertKanjiStatement, k.Kanji, k.OnReading, k.KunReading, k.KanjiRating, k.Username)
+	if err != nil {
+		return nil, err
+	}
+	// insert into kanji_sentence
+	insertKanjiSentenceStatement := "INSERT INTO kanji_sentence(kanji_id, example_sentence) VALUES((SELECT id FROM kanji WHERE kanji.kanji = $1 AND kanji.username = $3), $2);"
+	_, err = tx.ExecContext(ctx, insertKanjiSentenceStatement, k.Kanji, k.ExampleSentence, k.Username)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(k.ExampleWord)
+	// insert into kanji_example
+	insertKanjiExampleStatement := "INSERT INTO kanji_example(kanji_id, example_word) VALUES((SELECT id FROM kanji WHERE kanji.kanji = $1 AND kanji.username = $3), $2);"
+	_, err = tx.ExecContext(ctx, insertKanjiExampleStatement, k.Kanji, k.ExampleWord, k.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	// select from kanji and kanji_sentenece
+	selectKanijStatement := `
+	SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating, kanji.username, kanji_sentence.example_sentence, kanji_example.example_word 
+	FROM kanji
+		JOIN kanji_sentence ON kanji.id = kanji_sentence.kanji_id  
+		JOIN kanji_example ON kanji.id = kanji_example.kanji_id
+	WHERE kanji.kanji = $1 AND kanji.username = $2;`
+
+	row := tx.QueryRowContext(ctx, selectKanijStatement, k.Kanji, k.Username)
+	kanji, scanErr := ScanKanji(row)
+	// commit transaction
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+	return kanji, scanErr
 }
 
 func (s *Storage) GetKanji(ctx context.Context, id string) (*Kanji, error) {
@@ -52,7 +95,7 @@ func (s *Storage) GetKanji(ctx context.Context, id string) (*Kanji, error) {
 }
 
 func (s *Storage) GetAllKanji(ctx context.Context) ([]*Kanji, error) {
-	rows, err := s.conn.QueryContext(ctx, "SELECT id, kanji, on_reading, kun_reading, kanji_rating, username FROM kanji")
+	rows, err := s.conn.QueryContext(ctx, "SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating,kanji.username, kanji_sentence.example_sentence FROM kanji JOIN kanji_sentence ON kanji.id = kanji_sentence.kanji_id")
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve items: %w", err)
 	}
