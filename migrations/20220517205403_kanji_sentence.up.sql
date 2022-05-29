@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS kanji_sentence(
+    sentence_id uuid DEFAULT uuid_generate_v4(), 
     kanji_id uuid NOT NULL,
     example_sentence TEXT,
-    CONSTRAINT pk_kanji_sentence 
-        PRIMARY KEY (kanji_id, example_sentence),
+    PRIMARY KEY (sentence_id),
     CONSTRAINT fk_kanji_id
         FOREIGN KEY(kanji_id)
             REFERENCES kanji(id)
