@@ -61,13 +61,13 @@ type CreateKanjiRequest struct {
 }
 
 type UpdateKanjiRequest struct {
-	ID               *string   `json:"id,omitempty"`
-	Kanji            *string   `json:"kanji,omitempty"`
-	ExampleSentences *[]string `json:"exampleSentences,omitempty"`
-	ExampleWords     *[]string `json:"exampleWords,omitempty"`
-	OnReading        *string   `json:"onReading,omitempty"`
-	KunReading       *string   `json:"kunReading,omitempty"`
-	KanjiRating      *int      `json:"kanjiRating,omitempty"`
+	ID               *string          `json:"id,omitempty"`
+	Kanji            *string          `json:"kanji,omitempty"`
+	ExampleSentences ExampleSentences `json:"exampleSentences,omitempty"`
+	ExampleWords     ExampleWords     `json:"exampleWords,omitempty"`
+	OnReading        *string          `json:"onReading,omitempty"`
+	KunReading       *string          `json:"kunReading,omitempty"`
+	KanjiRating      *int             `json:"kanjiRating,omitempty"`
 }
 
 //TODO: Remove function duplication. Try composition, embedding, or factory
@@ -132,7 +132,7 @@ func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji
 			return nil, err
 		}
 	}
-	// select from kanji and kanji_sentenece
+	// select from kanji, kanji_sentence, and kanji_example
 	row := tx.QueryRowContext(ctx, selectKanijById, kanjiId)
 	kanji, scanErr := ScanKanji(row)
 	// commit transaction
@@ -183,9 +183,49 @@ func (s *Storage) GetAllKanji(ctx context.Context) ([]*Kanji, error) {
 }
 
 func (s *Storage) UpdateKanji(ctx context.Context, k UpdateKanjiRequest) (*Kanji, error) {
-	updateStatement := "UPDATE kanji SET kanji = COALESCE($1, kanji), on_reading = COALESCE($2, on_reading), kun_reading = COALESCE($3, kun_reading), kanji_rating = COALESCE($4, kanji_rating) WHERE id = $5 RETURNING id, kanji, on_reading, kun_reading, kanji_rating, username"
-	row := s.conn.QueryRowContext(ctx, updateStatement, k.Kanji, k.OnReading, k.KunReading, k.KanjiRating, k.ID)
-	return ScanKanji(row)
+	tx, err := s.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback()
+
+	// update kanji
+	updateKanjiStatement := "UPDATE kanji SET kanji = COALESCE($1, kanji), on_reading = COALESCE($2, on_reading), kun_reading = COALESCE($3, kun_reading), kanji_rating = COALESCE($4, kanji_rating) WHERE id = $5 RETURNING id"
+	_, err = tx.ExecContext(ctx, updateKanjiStatement, k.Kanji, k.OnReading, k.KunReading, k.KanjiRating, k.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// update kanji_sentence
+	updateKanjiSentenceStatement := "UPDATE kanji_sentence SET example_sentence = COALESCE($1, example_sentence) WHERE sentence_id = $2"
+	for _, exampleSentence := range k.ExampleSentences {
+		_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, exampleSentence.ExampleSentence, exampleSentence.SentenceID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	//update kanji_example
+	updateKanjiExampleStatement := "UPDATE kanji_example SET example_word = COALESCE($1, example_word) WHERE word_id = $2"
+	for _, exampleWord := range k.ExampleWords {
+		_, err = tx.ExecContext(ctx, updateKanjiExampleStatement, exampleWord.ExampleWord, exampleWord.WordId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// select from kanji, kanji_sentence, and kanji_example
+	row := tx.QueryRowContext(ctx, selectKanijById, k.ID)
+	kanji, scanErr := ScanKanji(row)
+
+	// commit transaction
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return kanji, scanErr
+
 }
 
 func (s *Storage) DeleteKanji(id string) error {
