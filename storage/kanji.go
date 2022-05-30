@@ -40,14 +40,14 @@ type ExampleSentences []ExampleSentence
 type ExampleWords []ExampleWord
 
 type Kanji struct {
-	ID               string
-	Kanji            string
-	ExampleSentences ExampleSentences
-	ExampleWords     ExampleWords
-	OnReading        string
-	KunReading       string
-	KanjiRating      int
-	Username         string
+	ID               string           `json:"id,omitempty"`
+	Kanji            string           `json:"kanji,omitempty"`
+	ExampleSentences ExampleSentences `json:"exampleSentences,omitempty"`
+	ExampleWords     ExampleWords     `json:"exampleWords,omitempty"`
+	OnReading        string           `json:"onReading,omitempty"`
+	KunReading       string           `json:"kunReading,omitempty"`
+	KanjiRating      int              `json:"kanjiRating,omitempty"`
+	Username         string           `json:"username,omitempty"`
 }
 
 type CreateKanjiRequest struct {
