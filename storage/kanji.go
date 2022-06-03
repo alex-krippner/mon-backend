@@ -12,13 +12,13 @@ const selectKanijById = `
 	FROM kanji
 		LEFT JOIN (
 			SELECT ks.kanji_id AS id, json_agg(
-				json_build_object('exampleSentence', example_sentence, 'sentenceId', sentence_id, 'kanjiId', kanji_id)) AS example_sentences
+				json_build_object('exampleSentence', example_sentence, 'id', ks.id, 'kanjiId', kanji_id)) AS example_sentences
 			FROM kanji_sentence ks
 			GROUP BY ks.kanji_id
 		) ks USING(id)
 		LEFT JOIN (
 			SELECT ke.kanji_id AS id, json_agg(
-				json_build_object('exampleWord', example_word, 'wordId', word_id, 'kanjiId', kanji_id)) AS example_words
+				json_build_object('exampleWord', example_word, 'id', ke.id, 'kanjiId', kanji_id)) AS example_words
 			FROM kanji_example ke
 			GROUP BY ke.kanji_id
 		) ke USING (id)
@@ -26,13 +26,13 @@ const selectKanijById = `
 		;`
 
 type ExampleSentence struct {
-	SentenceID      string `json:"sentenceId,omitempty"`
+	ID              string `json:"id,omitempty"`
 	KanjiID         string `json:"kanjiId,omitempty"`
 	ExampleSentence string `json:"exampleSentence,omitempty"`
 }
 
 type ExampleWord struct {
-	WordId      string `json:"wordId,omitempty"`
+	ID          string `json:"id,omitempty"`
 	KanjiID     string `json:"kanjiId,omitempty"`
 	ExampleWord string `json:"exampleWord,omitempty"`
 }
@@ -153,13 +153,13 @@ func (s *Storage) GetAllKanji(ctx context.Context) ([]*Kanji, error) {
 	FROM kanji
 		LEFT JOIN (
 			SELECT ks.kanji_id AS id, json_agg(
-				json_build_object('exampleSentence', example_sentence, 'sentenceId', sentence_id, 'kanjiId', kanji_id)) AS example_sentences
+				json_build_object('exampleSentence', example_sentence, 'id', ks.id, 'kanjiId', kanji_id)) AS example_sentences
 			FROM kanji_sentence ks
 			GROUP BY ks.kanji_id
 		) ks USING(id)
 		LEFT JOIN (
 			SELECT ke.kanji_id AS id, json_agg(
-				json_build_object('exampleWord', example_word, 'wordId', word_id, 'kanjiId', kanji_id)) AS example_words
+				json_build_object('exampleWord', example_word, 'id', ke.id, 'kanjiId', kanji_id)) AS example_words
 			FROM kanji_example ke
 			GROUP BY ke.kanji_id
 		) ke USING (id);
@@ -198,18 +198,18 @@ func (s *Storage) UpdateKanji(ctx context.Context, k UpdateKanjiRequest) (*Kanji
 	}
 
 	// update kanji_sentence
-	updateKanjiSentenceStatement := "UPDATE kanji_sentence SET example_sentence = COALESCE($1, example_sentence) WHERE sentence_id = $2"
+	updateKanjiSentenceStatement := "UPDATE kanji_sentence SET example_sentence = COALESCE($1, example_sentence) WHERE id = $2"
 	for _, exampleSentence := range k.ExampleSentences {
-		_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, exampleSentence.ExampleSentence, exampleSentence.SentenceID)
+		_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, exampleSentence.ExampleSentence, exampleSentence.ID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	//update kanji_example
-	updateKanjiExampleStatement := "UPDATE kanji_example SET example_word = COALESCE($1, example_word) WHERE word_id = $2"
+	updateKanjiExampleStatement := "UPDATE kanji_example SET example_word = COALESCE($1, example_word) WHERE id = $2"
 	for _, exampleWord := range k.ExampleWords {
-		_, err = tx.ExecContext(ctx, updateKanjiExampleStatement, exampleWord.ExampleWord, exampleWord.WordId)
+		_, err = tx.ExecContext(ctx, updateKanjiExampleStatement, exampleWord.ExampleWord, exampleWord.ID)
 		if err != nil {
 			return nil, err
 		}
