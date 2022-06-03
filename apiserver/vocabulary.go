@@ -34,11 +34,12 @@ func (s *APIServer) createVocab(w http.ResponseWriter, req *http.Request) error 
 	}
 
 	vocab, err := s.storage.CreateVocab(req.Context(), storage.CreateVocabRequest{
-		Vocab:       v.Vocab,
-		Definition:  v.Definition,
-		Kanji:       v.Kanji,
-		VocabRating: v.VocabRating,
-		Username:    v.Username,
+		Vocab:            v.Vocab,
+		Definitions:      v.Definitions,
+		ExampleSentences: v.ExampleSentences,
+		Kanji:            v.Kanji,
+		VocabRating:      v.VocabRating,
+		Username:         v.Username,
 	})
 
 	if err != nil {

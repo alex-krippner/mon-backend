@@ -117,8 +117,8 @@ func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji
 
 	// insert into kanji_sentence
 	insertKanjiSentenceStatement := "INSERT INTO kanji_sentence(kanji_id, example_sentence) VALUES($1, $2);"
-	for _, exampleSentence := range k.ExampleSentences {
-		_, err = tx.ExecContext(ctx, insertKanjiSentenceStatement, kanjiId, exampleSentence.ExampleSentence)
+	for _, s := range k.ExampleSentences {
+		_, err = tx.ExecContext(ctx, insertKanjiSentenceStatement, kanjiId, s.ExampleSentence)
 		if err != nil {
 			return nil, err
 		}
@@ -126,20 +126,23 @@ func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji
 
 	// insert into kanji_example
 	insertKanjiExampleStatement := "INSERT INTO kanji_example(kanji_id, example_word) VALUES($1, $2);"
-	for _, exampleWord := range k.ExampleWords {
-		_, err = tx.ExecContext(ctx, insertKanjiExampleStatement, kanjiId, exampleWord.ExampleWord)
+	for _, w := range k.ExampleWords {
+		_, err = tx.ExecContext(ctx, insertKanjiExampleStatement, kanjiId, w.ExampleWord)
 		if err != nil {
 			return nil, err
 		}
 	}
 	// select from kanji, kanji_sentence, and kanji_example
 	row := tx.QueryRowContext(ctx, selectKanijById, kanjiId)
-	kanji, scanErr := ScanKanji(row)
+	kanji, err := ScanKanji(row)
+	if err != nil {
+		return nil, err
+	}
 	// commit transaction
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
-	return kanji, scanErr
+	return kanji, nil
 }
 
 func (s *Storage) GetKanji(ctx context.Context, id string) (*Kanji, error) {
