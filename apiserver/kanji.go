@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"net/http"
-
 	"mon-backend/storage"
+	"net/http"
 
 	"github.com/gorilla/mux"
 )
