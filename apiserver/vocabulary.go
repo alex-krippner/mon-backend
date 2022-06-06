@@ -37,6 +37,7 @@ func (s *APIServer) createVocab(w http.ResponseWriter, req *http.Request) error 
 		Vocab:            v.Vocab,
 		Definitions:      v.Definitions,
 		ExampleSentences: v.ExampleSentences,
+		PartsOfSpeech:    v.PartsOfSpeech,
 		Kanji:            v.Kanji,
 		VocabRating:      v.VocabRating,
 		Username:         v.Username,

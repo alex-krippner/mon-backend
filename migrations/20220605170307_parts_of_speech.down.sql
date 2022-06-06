@@ -1,0 +1,1 @@
+DROP TABLE parts_of_speech;

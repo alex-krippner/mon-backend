@@ -1,0 +1,1 @@
+DROP TABLE vocab_parts_of_speech;
