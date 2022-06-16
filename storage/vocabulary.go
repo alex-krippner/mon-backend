@@ -88,6 +88,10 @@ type UpdateVocabRequest struct {
 }
 
 func (d *VocabDefinitions) Scan(src interface{}) error {
+	if src == nil {
+		return HandleNil(d)
+	}
+
 	b, ok := src.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
@@ -96,6 +100,10 @@ func (d *VocabDefinitions) Scan(src interface{}) error {
 }
 
 func (vs *VocabSentences) Scan(src interface{}) error {
+	if src == nil {
+		return HandleNil(vs)
+	}
+
 	b, ok := src.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
@@ -104,6 +112,10 @@ func (vs *VocabSentences) Scan(src interface{}) error {
 }
 
 func (ps *PartsOfSpeech) Scan(src interface{}) error {
+	if src == nil {
+		return HandleNil(ps)
+	}
+
 	b, ok := src.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")

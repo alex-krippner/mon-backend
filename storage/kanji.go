@@ -72,6 +72,10 @@ type UpdateKanjiRequest struct {
 
 //TODO: Remove function duplication. Try composition, embedding, or factory
 func (e *ExampleSentences) Scan(src interface{}) error {
+	if src == nil {
+		return HandleNil(e)
+	}
+
 	b, ok := src.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
@@ -81,6 +85,10 @@ func (e *ExampleSentences) Scan(src interface{}) error {
 }
 
 func (e *ExampleWords) Scan(src interface{}) error {
+	if src == nil {
+		return HandleNil(e)
+	}
+
 	b, ok := src.([]byte)
 	if !ok {
 		return errors.New("type assertion to []byte failed")
