@@ -26,10 +26,10 @@ FROM vocabulary
 		SELECT ps.vocab_id AS id, json_agg(
 			json_build_object('partOfSpeech', part_of_speech, 'vocabId', ps.vocab_id)) AS parts_of_speech
 		FROM (
-			select ps.part_of_speech, vp.vocab_id
-			from parts_of_speech ps
-			join vocab_part_of_speech vp
-			on vp.part_of_speech_id = ps.id
+			SELECT ps.part_of_speech, vp.vocab_id
+			FROM parts_of_speech ps
+			JOIN vocab_part_of_speech vp
+			ON vp.part_of_speech_id = ps.id
 		) AS ps
 		GROUP BY ps.vocab_id
 	) ps USING (id)
@@ -232,10 +232,10 @@ func (s *Storage) GetAllVocab(ctx context.Context) ([]*Vocab, error) {
 			SELECT ps.vocab_id AS id, json_agg(
 				json_build_object('partOfSpeech', part_of_speech, 'vocabId', ps.vocab_id)) AS parts_of_speech
 			FROM (
-				select ps.part_of_speech, vp.vocab_id
-				from parts_of_speech ps
-				join vocab_part_of_speech vp
-				on vp.part_of_speech_id = ps.id
+				SELECT ps.part_of_speech, vp.vocab_id
+				FROM parts_of_speech ps
+				JOIN vocab_part_of_speech vp
+				ON vp.part_of_speech_id = ps.id
 			) AS ps
 			GROUP BY ps.vocab_id
 		) ps USING (id);`
