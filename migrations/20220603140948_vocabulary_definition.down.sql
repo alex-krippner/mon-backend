@@ -1,1 +1,1 @@
-DROP TABLE vocabulary_definition;
+DROP TABLE IF EXISTS vocabulary_definition;

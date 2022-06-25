@@ -30,17 +30,18 @@ func (s *APIServer) createKanji(w http.ResponseWriter, req *http.Request) error 
 
 	json.Unmarshal([]byte(body), &k)
 	kanji, err := s.storage.CreateKanji(req.Context(), storage.CreateKanjiRequest{
-		Kanji:            k.Kanji,
 		ExampleSentences: k.ExampleSentences,
 		ExampleWords:     k.ExampleWords,
-		OnReading:        k.OnReading,
-		KunReading:       k.KunReading,
+		Kanji:            k.Kanji,
 		KanjiRating:      k.KanjiRating,
+		KunReading:       k.KunReading,
+		Meanings:         k.Meanings,
+		OnReading:        k.OnReading,
 		Username:         k.Username,
 	})
 
 	if err != nil {
-		log.Print(err)
+		log.Print(err.Error())
 		return err
 	}
 

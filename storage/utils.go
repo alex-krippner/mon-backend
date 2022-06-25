@@ -7,7 +7,7 @@ type VocabStructs interface {
 }
 
 type KanjiStructs interface {
-	*ExampleSentences | *ExampleWords
+	*ExampleSentences | *ExampleWords | *Meanings
 }
 
 func HandleNil[S VocabStructs | KanjiStructs](s S) error {

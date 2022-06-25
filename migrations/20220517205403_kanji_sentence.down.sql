@@ -1,1 +1,1 @@
-DROP TABLE kanji_sentence;
+DROP TABLE IF EXISTS kanji_sentence;
