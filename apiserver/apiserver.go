@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -75,7 +76,13 @@ func (s *APIServer) router() http.Handler {
 	s.addKanjiHandlers(router)
 	s.addVocabHandlers(router)
 
-	return router
+	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"})
+	origins := handlers.AllowedOrigins([]string{"http://localhost:8081"})
+
+	// Wrap your router with the CORS middleware
+	corsHandler := handlers.CORS(headers, methods, origins)(router)
+	return corsHandler
 }
 
 func (s *APIServer) defaultRoute(w http.ResponseWriter, r *http.Request) {
