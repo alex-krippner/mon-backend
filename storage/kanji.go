@@ -8,14 +8,13 @@ import (
 )
 
 const selectKanijById = `
-	SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating, kanji.username, ks.example_sentences, ke.example_words, m.meanings
-	FROM kanji
-		LEFT JOIN (
-			SELECT ks.kanji_id AS id, json_agg(
-				json_build_object('exampleSentence', example_sentence, 'id', ks.id, 'kanjiId', kanji_id)) AS example_sentences
+	SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating, kanji.username,
+		(SELECT  json_build_object('id', kanji.id, 'exampleSentence', ks.example_sentence, 'kanjiId', ks.kanji_id)
 			FROM kanji_sentence ks
-			GROUP BY ks.kanji_id
-		) ks USING(id)
+			WHERE ks.kanji_id = kanji.id
+		) AS example_sentences,
+		ke.example_words, m.meanings
+	FROM kanji
 		LEFT JOIN (
 			SELECT ke.kanji_id AS id, json_agg(
 				json_build_object('exampleWord', example_word, 'id', ke.id, 'kanjiId', kanji_id)) AS example_words
@@ -53,24 +52,23 @@ type Meaning struct {
 	Meaning string `json:"meaning,omitempty"`
 }
 
-type ExampleSentences []ExampleSentence
 type ExampleWords []ExampleWord
 type Meanings []Meaning
 
 type Kanji struct {
-	ID               string           `json:"id,omitempty"`
-	ExampleSentences ExampleSentences `json:"exampleSentences,omitempty"`
-	ExampleWords     ExampleWords     `json:"exampleWords,omitempty"`
-	Kanji            string           `json:"kanji,omitempty"`
-	KanjiRating      int              `json:"kanjiRating,omitempty"`
-	KunReading       string           `json:"kunReading,omitempty"`
-	Meanings         Meanings         `json:"meanings,omitempty"`
-	OnReading        string           `json:"onReading,omitempty"`
-	Username         string           `json:"username,omitempty"`
+	ID               string          `json:"id,omitempty"`
+	ExampleSentences ExampleSentence `json:"exampleSentences,omitempty"`
+	ExampleWords     ExampleWords    `json:"exampleWords,omitempty"`
+	Kanji            string          `json:"kanji,omitempty"`
+	KanjiRating      int             `json:"kanjiRating,omitempty"`
+	KunReading       string          `json:"kunReading,omitempty"`
+	Meanings         Meanings        `json:"meanings,omitempty"`
+	OnReading        string          `json:"onReading,omitempty"`
+	Username         string          `json:"username,omitempty"`
 }
 
 type CreateKanjiRequest struct {
-	ExampleSentences ExampleSentences
+	ExampleSentences ExampleSentence
 	ExampleWords     ExampleWords
 	Kanji            string
 	KanjiRating      int
@@ -81,17 +79,17 @@ type CreateKanjiRequest struct {
 }
 
 type UpdateKanjiRequest struct {
-	ID               *string          `json:"id,omitempty"`
-	Kanji            *string          `json:"kanji,omitempty"`
-	ExampleSentences ExampleSentences `json:"exampleSentences,omitempty"`
-	ExampleWords     ExampleWords     `json:"exampleWords,omitempty"`
-	OnReading        *string          `json:"onReading,omitempty"`
-	KunReading       *string          `json:"kunReading,omitempty"`
-	KanjiRating      *int             `json:"kanjiRating,omitempty"`
+	ID               *string         `json:"id,omitempty"`
+	Kanji            *string         `json:"kanji,omitempty"`
+	ExampleSentences ExampleSentence `json:"exampleSentences,omitempty"`
+	ExampleWords     ExampleWords    `json:"exampleWords,omitempty"`
+	OnReading        *string         `json:"onReading,omitempty"`
+	KunReading       *string         `json:"kunReading,omitempty"`
+	KanjiRating      *int            `json:"kanjiRating,omitempty"`
 }
 
 //TODO: Remove function duplication. Try composition, embedding, or factory
-func (e *ExampleSentences) Scan(src interface{}) error {
+func (e *ExampleSentence) Scan(src interface{}) error {
 	if src == nil {
 		return HandleNil(e)
 	}
@@ -140,6 +138,7 @@ func ScanKanji(s Scanner) (*Kanji, error) {
 
 func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji, error) {
 	fmt.Println(k.Meanings)
+	fmt.Println(k)
 	// open transaction
 	tx, err := s.conn.BeginTx(ctx, nil)
 	if err != nil {
@@ -158,11 +157,9 @@ func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji
 
 	// insert into kanji_sentence
 	insertKanjiSentenceStatement := "INSERT INTO kanji_sentence(kanji_id, example_sentence) VALUES($1, $2);"
-	for _, s := range k.ExampleSentences {
-		_, err = tx.ExecContext(ctx, insertKanjiSentenceStatement, kanjiId, s.ExampleSentence)
-		if err != nil {
-			return nil, err
-		}
+	_, err = tx.ExecContext(ctx, insertKanjiSentenceStatement, kanjiId, k.ExampleSentences.ExampleSentence)
+	if err != nil {
+		return nil, err
 	}
 
 	// insert into kanji_example
@@ -221,14 +218,13 @@ func (s *Storage) GetKanji(ctx context.Context, id string) (*Kanji, error) {
 
 func (s *Storage) GetAllKanji(ctx context.Context) ([]*Kanji, error) {
 	selectStatement := `
-	SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating, kanji.username, ks.example_sentences, ke.example_words, m.meanings
-	FROM kanji
-		LEFT JOIN (
-			SELECT ks.kanji_id AS id, json_agg(
-				json_build_object('exampleSentence', example_sentence, 'id', ks.id, 'kanjiId', kanji_id)) AS example_sentences
+	SELECT kanji.id, kanji.kanji, kanji.on_reading, kanji.kun_reading, kanji.kanji_rating, kanji.username,
+		(SELECT  json_build_object('id', kanji.id, 'exampleSentence', ks.example_sentence, 'kanjiId', ks.kanji_id)
 			FROM kanji_sentence ks
-			GROUP BY ks.kanji_id
-		) ks USING(id)
+			WHERE ks.kanji_id = kanji.id
+		) AS example_sentences,
+		ke.example_words, m.meanings
+	FROM kanji
 		LEFT JOIN (
 			SELECT ke.kanji_id AS id, json_agg(
 				json_build_object('exampleWord', example_word, 'id', ke.id, 'kanjiId', kanji_id)) AS example_words
@@ -282,11 +278,9 @@ func (s *Storage) UpdateKanji(ctx context.Context, k UpdateKanjiRequest) (*Kanji
 
 	// update kanji_sentence
 	updateKanjiSentenceStatement := "UPDATE kanji_sentence SET example_sentence = COALESCE($1, example_sentence) WHERE id = $2"
-	for _, exampleSentence := range k.ExampleSentences {
-		_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, exampleSentence.ExampleSentence, exampleSentence.ID)
-		if err != nil {
-			return nil, err
-		}
+	_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, k.ExampleSentences.ExampleSentence, k.ID)
+	if err != nil {
+		return nil, err
 	}
 
 	//update kanji_example
