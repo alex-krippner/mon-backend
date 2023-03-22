@@ -276,7 +276,7 @@ func (s *Storage) UpdateKanji(ctx context.Context, k UpdateKanjiRequest) (*Kanji
 
 	// update kanji_sentence
 	updateKanjiSentenceStatement := "UPDATE kanji_sentence SET example_sentence = COALESCE($1, example_sentence) WHERE id = $2"
-	_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, k.ExampleSentences.ExampleSentence, k.ID)
+	_, err = tx.ExecContext(ctx, updateKanjiSentenceStatement, k.ExampleSentences.ExampleSentence, k.ExampleSentences.ID)
 	if err != nil {
 		return nil, err
 	}
