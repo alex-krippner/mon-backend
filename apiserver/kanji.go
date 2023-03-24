@@ -10,6 +10,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+type DeleteResponse struct {
+	ID string `json:"id"`
+}
+
 func (s *APIServer) addKanjiHandlers(r *mux.Router) {
 
 	r.Methods("POST").Path("/kanji").Handler(Endpoint{s.createKanji})
@@ -134,7 +138,15 @@ func (s *APIServer) deleteKanji(w http.ResponseWriter, req *http.Request) error 
 		return err
 	}
 
+	deleteResponse := DeleteResponse{id}
+	response, err := json.Marshal(deleteResponse)
+
+	if err != nil {
+		return err
+	}
+
 	w.WriteHeader(http.StatusOK)
+	w.Write(response)
 
 	return nil
 }

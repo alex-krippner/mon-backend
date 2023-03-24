@@ -7,5 +7,8 @@ CREATE TABLE IF NOT EXISTS kanji(
   kun_reading VARCHAR (50),
   kanji_rating INT,
   username VARCHAR (50),
+  meanings TEXT,
+  example_sentences TEXT,
+  example_words TEXT,
   PRIMARY KEY (id)
 );

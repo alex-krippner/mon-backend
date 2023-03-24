@@ -1,1 +1,0 @@
-DROP TABLE IF EXISTS vocab_parts_of_speech;
