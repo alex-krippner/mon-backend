@@ -136,7 +136,15 @@ func (s *APIServer) deleteVocab(w http.ResponseWriter, req *http.Request) error 
 		return err
 	}
 
+	deleteResponse := DeleteResponse{id}
+	response, err := json.Marshal(deleteResponse)
+
+	if err != nil {
+		return err
+	}
+
 	w.WriteHeader(http.StatusOK)
+	w.Write((response))
 
 	return nil
 }
