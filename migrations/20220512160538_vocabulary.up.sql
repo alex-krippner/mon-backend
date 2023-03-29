@@ -4,5 +4,8 @@ CREATE TABLE IF NOT EXISTS vocabulary(
   kanji VARCHAR (50),
   vocab_rating INT,
   username VARCHAR (50),
+  definitions TEXT,
+  example_sentences TEXT,
+  parts_of_speech TEXT,
   PRIMARY KEY (id)
 );
