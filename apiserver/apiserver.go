@@ -75,6 +75,7 @@ func (s *APIServer) router() http.Handler {
 	router.HandleFunc("/", s.defaultRoute)
 	s.addKanjiHandlers(router)
 	s.addVocabHandlers(router)
+	s.addReadingHandlers(router)
 
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"})
