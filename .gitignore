@@ -1,6 +1,9 @@
 ### VS Code ###
 .vscode/
 
+### IntelliJ IDEA ###
+.idea/
+
 ### go ###
 tmp/
 
