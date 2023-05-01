@@ -13,6 +13,7 @@ import (
 func (s *APIServer) addReadingHandlers(r *mux.Router) {
 
 	r.Methods("POST").Path("/reading").Handler(Endpoint{s.createReading})
+	r.Methods("GET").Path("/reading").Handler(Endpoint{s.getAllReading})
 }
 
 func (s *APIServer) createReading(w http.ResponseWriter, req *http.Request) error {
@@ -25,8 +26,9 @@ func (s *APIServer) createReading(w http.ResponseWriter, req *http.Request) erro
 
 	json.Unmarshal([]byte(body), &r)
 	reading, err := s.storage.CreateReading(req.Context(), storage.CreateReadingRequest{
-		EnglishTranslation: r.EnglishTranslation,
-		Japanese:           r.Japanese,
+		Translation: r.Translation,
+		Japanese:    r.Japanese,
+		Title:       r.Title,
 	})
 
 	if err != nil {
@@ -41,6 +43,23 @@ func (s *APIServer) createReading(w http.ResponseWriter, req *http.Request) erro
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write(jsonResponse)
+
+	return nil
+}
+
+func (s *APIServer) getAllReading(w http.ResponseWriter, req *http.Request) error {
+	readingSlice, err := s.storage.GetAllReading(req.Context())
+	if err != nil {
+		return err
+	}
+	jsonResponse, err := json.Marshal(readingSlice)
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusOK)
 	w.Write(jsonResponse)
 
 	return nil

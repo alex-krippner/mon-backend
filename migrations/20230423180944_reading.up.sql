@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS reading(
     id uuid DEFAULT uuid_generate_v4(),
+    translation TEXT,
     japanese TEXT,
-    english_translation TEXT,
+    title TEXT,
     PRIMARY KEY (id)
 )
