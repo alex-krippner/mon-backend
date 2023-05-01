@@ -71,3 +71,29 @@ func (s *Storage) GetAllReading(ctx context.Context) ([]*Reading, error) {
 	}
 	return readingSlice, nil
 }
+
+func (s *Storage) UpdateReading(ctx context.Context, r Reading) (*Reading, error) {
+	selectReadingById := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.id = $1"
+
+	tx, err := s.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	defer tx.Rollback()
+
+	updateReadingStatement := "UPDATE reading SET translation = COALESCE($1, translation), japanese = COALESCE($2, japanese), title = COALESCE($3, title) WHERE id = $4 RETURNING id"
+	_, err = tx.ExecContext(ctx, updateReadingStatement, r.Translation, r.Japanese, r.Title, r.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	row := tx.QueryRowContext(ctx, selectReadingById, r.ID)
+	reading, scanErr := ScanReading(row)
+
+	if err = tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	return reading, scanErr
+}
