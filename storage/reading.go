@@ -97,3 +97,13 @@ func (s *Storage) UpdateReading(ctx context.Context, r Reading) (*Reading, error
 
 	return reading, scanErr
 }
+
+func (s *Storage) DeleteReading(id string) error {
+	_, err := s.conn.Exec("DELETE FROM reading WHERE id = $1", id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
