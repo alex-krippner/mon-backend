@@ -15,6 +15,7 @@ func (s *APIServer) addReadingHandlers(r *mux.Router) {
 	r.Methods("POST").Path("/reading").Handler(Endpoint{s.createReading})
 	r.Methods("GET").Path("/reading").Handler(Endpoint{s.getAllReading})
 	r.Methods("PATCH").Path("/reading").Handler(Endpoint{s.updateReading})
+	r.Methods("DELETE").Path("/reading/{id}").Handler(Endpoint{s.deleteReading})
 }
 
 func (s *APIServer) createReading(w http.ResponseWriter, req *http.Request) error {
@@ -92,6 +93,28 @@ func (s *APIServer) updateReading(w http.ResponseWriter, req *http.Request) erro
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(jsonResponse)
+
+	return nil
+}
+
+func (s *APIServer) deleteReading(w http.ResponseWriter, req *http.Request) error {
+
+	id := mux.Vars(req)["id"]
+	err := s.storage.DeleteReading(id)
+
+	if err != nil {
+		return err
+	}
+
+	deleteResponse := DeleteResponse{id}
+	response, err := json.Marshal(deleteResponse)
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader((http.StatusOK))
+	w.Write(response)
 
 	return nil
 }
