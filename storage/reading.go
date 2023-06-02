@@ -69,6 +69,7 @@ func (s *Storage) GetAllReading(ctx context.Context) ([]*Reading, error) {
 
 		readingSlice = append(readingSlice, reading)
 	}
+
 	return readingSlice, nil
 }
 
@@ -90,7 +91,6 @@ func (s *Storage) UpdateReading(ctx context.Context, r Reading) (*Reading, error
 
 	row := tx.QueryRowContext(ctx, selectReadingById, r.ID)
 	reading, scanErr := ScanReading(row)
-
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
@@ -100,7 +100,6 @@ func (s *Storage) UpdateReading(ctx context.Context, r Reading) (*Reading, error
 
 func (s *Storage) DeleteReading(id string) error {
 	_, err := s.conn.Exec("DELETE FROM reading WHERE id = $1", id)
-
 	if err != nil {
 		return err
 	}

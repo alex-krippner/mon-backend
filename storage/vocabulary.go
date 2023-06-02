@@ -78,7 +78,7 @@ func (s *Storage) CreateVocab(ctx context.Context, v CreateVocabRequest) (*Vocab
 
 	insertVocabStatement := "INSERT INTO vocabulary(vocab, kanji, vocab_rating, username, definitions, example_sentences, parts_of_speech) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id, vocab, kanji, vocab_rating, username, definitions, example_sentences, parts_of_speech;"
 	insertedVocabRow := s.conn.QueryRowContext(ctx, insertVocabStatement, v.Vocab, v.Kanji, v.VocabRating, v.Username, v.Definitions, v.ExampleSentences, v.PartsOfSpeech)
-	println(insertedVocabRow)
+
 	vocab, err := ScanVocab(insertedVocabRow)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,6 @@ func (s *Storage) CreateVocab(ctx context.Context, v CreateVocabRequest) (*Vocab
 }
 
 func (s *Storage) GetVocab(ctx context.Context, id string) (*Vocab, error) {
-
 	row := s.conn.QueryRowContext(ctx, selectVocabById, id)
 	return ScanVocab(row)
 }
@@ -104,7 +103,6 @@ func (s *Storage) GetAllVocab(ctx context.Context) ([]*Vocab, error) {
 	FROM vocabulary;`
 
 	rows, err := s.conn.QueryContext(ctx, selectStatement)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve vocab: %w", err)
 	}
@@ -140,7 +138,6 @@ func (s *Storage) UpdateVocab(ctx context.Context, v UpdateVocabRequest) (*Vocab
 
 	row := tx.QueryRowContext(ctx, selectVocabById, v.ID)
 	vocab, err := ScanVocab(row)
-
 	if err != nil {
 		return nil, fmt.Errorf("could not scan vocab: %w", err)
 	}
@@ -154,7 +151,6 @@ func (s *Storage) UpdateVocab(ctx context.Context, v UpdateVocabRequest) (*Vocab
 
 func (s *Storage) DeleteVocab(id string) error {
 	_, err := s.conn.Exec("DELETE FROM vocabulary WHERE id = $1", id)
-
 	if err != nil {
 		return err
 	}
