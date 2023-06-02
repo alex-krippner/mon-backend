@@ -81,7 +81,6 @@ func (s *APIServer) router() http.Handler {
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "PATCH"})
 	origins := handlers.AllowedOrigins([]string{"http://localhost:8081"})
 
-	// Wrap your router with the CORS middleware
 	corsHandler := handlers.CORS(headers, methods, origins)(router)
 	return corsHandler
 }

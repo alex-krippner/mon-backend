@@ -60,21 +60,21 @@ func (s *Storage) CreateKanji(ctx context.Context, k CreateKanjiRequest) (*Kanji
 	if err != nil {
 		return nil, err
 	}
-	// defer rollback
+
 	defer tx.Rollback()
-	// insert into kanji
+
 	insertKanjiStatement := "INSERT INTO kanji(kanji, on_reading, kun_reading, kanji_rating, username, meanings, example_sentences, example_words) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, kanji, on_reading, kun_reading, kanji_rating, username, meanings, example_sentences, example_words;"
 	insertedKanjiRow := tx.QueryRowContext(ctx, insertKanjiStatement, k.Kanji, k.OnReading, k.KunReading, k.KanjiRating, k.Username, k.Meanings, k.ExampleSentences, k.ExampleWords)
 
-	// select from kanji
 	kanji, err := ScanKanji(insertedKanjiRow)
 	if err != nil {
 		return nil, err
 	}
-	// commit transaction
+
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
+
 	return kanji, nil
 }
 
