@@ -1,47 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
+	"context"
+	"net/http"
 
-	"mon-backend/apiserver"
-	"mon-backend/storage"
-)
+	"mon-backend/ports"
+	"mon-backend/server"
+	"mon-backend/service"
 
-const (
-	apiServerAddrFlagName       string = "API_SERVER_ADDR"
-	apiServerStorageDatabaseURL string = "DATABASE_URL"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	if err := startServer(); err != nil {
-		fmt.Println("could not run application", err)
-	}
-}
+	ctx := context.Background()
+	app := service.NewApplication(ctx)
 
-func startServer() error {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	// Noob comment: empty struct requires no memory
-	stopper := make(chan struct{})
-	go func() {
-		// Noob Comment: Block here until a value is received by the channel "done"
-		<-done
-		close(stopper)
-	}()
-	databaseURL := os.Getenv(apiServerStorageDatabaseURL)
-	s, err := storage.NewStorage(databaseURL)
-	if err != nil {
-		return fmt.Errorf("could not initialize storage: %w", err)
-	}
-
-	addr := os.Getenv(apiServerAddrFlagName)
-	server, err := apiserver.NewAPIServer(addr, s)
-	if err != nil {
-		return err
-	}
-
-	return server.Start(stopper)
+	server.RunHTTPServer(func(router chi.Router) http.Handler {
+		return ports.HandlerFromMux(ports.NewHttpServer(app), router)
+	})
 }
