@@ -6,6 +6,7 @@ import (
 	"mon-backend/server/httperr"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -42,4 +43,21 @@ func (h HttpServer) CreateReading(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusCreated)
 	render.Respond(w, r, readings)
+}
+
+func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request) {
+	readingId := chi.URLParam(r, "readingId")
+	deletedReading := DeletedReading{
+		Id: readingId,
+	}
+
+	err := h.app.Handlers.ReadingHandler.DeleteReading(r.Context(), readingId)
+
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.Respond(w, r, deletedReading)
 }

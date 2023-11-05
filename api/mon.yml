@@ -8,7 +8,7 @@ servers:
       hostname:
         default: localhost
 paths:
-  /reading:
+  /readings:
     get:
       operationId: getReadings
       responses:
@@ -50,8 +50,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reading'
+  /reading/{readingId}:
     delete:
       operationId: deleteReading
+      parameters:
+        - in: path
+          name: readingId
+          required: true
+          description: ID of the reading that is to be deleted
+          schema:
+            type: string
       responses:
         '200':
           description: The id of the reading that has been deleted
