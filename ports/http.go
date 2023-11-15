@@ -17,6 +17,7 @@ type HttpServer struct {
 func NewHttpServer(app app.Application) HttpServer {
 	return HttpServer{app}
 }
+
 func (h HttpServer) CreateReading(w http.ResponseWriter, r *http.Request) {
 	postReading := PostReading{}
 	if err := render.Decode(r, &postReading); err != nil {
@@ -37,12 +38,22 @@ func (h HttpServer) CreateReading(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusCreated)
+	render.Respond(w, r, readings)
+}
+
+func (h HttpServer) GetReadings(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
+	readings, err := h.app.Handlers.ReadingHandler.GetAllReading(r.Context(), username)
+
 	if err != nil {
 		httperr.RespondWithSlugError(err, w, r)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
+
+	w.WriteHeader(http.StatusOK)
 	render.Respond(w, r, readings)
+
 }
 
 func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request) {
