@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS reading(
     translation TEXT,
     japanese TEXT,
     title TEXT,
+    username VARCHAR (50),
     PRIMARY KEY (id)
 )
