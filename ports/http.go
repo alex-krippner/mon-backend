@@ -3,6 +3,7 @@ package ports
 import (
 	"mon-backend/app"
 	"mon-backend/app/handler"
+	"mon-backend/domain"
 	"mon-backend/server/httperr"
 	"net/http"
 
@@ -71,4 +72,21 @@ func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	render.Respond(w, r, deletedReading)
+}
+
+func (h HttpServer) UpdateReading(w http.ResponseWriter, r *http.Request) {
+	patchReading := domain.Reading{}
+	if err := render.Decode(r, &patchReading); err != nil {
+		httperr.BadRequest("invalid-request", err, w, r)
+		return
+	}
+
+	updatedReading, err := h.app.Handlers.ReadingHandler.UpdateReading(r.Context(), patchReading)
+	if err != nil {
+		httperr.RespondWithSlugError(err, w, r)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	render.Respond(w, r, updatedReading)
 }
