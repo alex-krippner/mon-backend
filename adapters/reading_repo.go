@@ -34,8 +34,8 @@ func (r ReadingRepository) CreateReading(ctx context.Context, req *domain.Readin
 	}
 	defer tx.Rollback()
 
-	insertReadingStatement := "INSERT INTO reading(translation, japanese, title) VALUES($1, $2, $3) RETURNING id, translation, japanese, title;"
-	insertedReadingRow := tx.QueryRowContext(ctx, insertReadingStatement, req.Translation, req.Japanese, req.Title)
+	insertReadingStatement := "INSERT INTO reading(translation, japanese, title, username) VALUES($1, $2, $3, $4) RETURNING id, translation, japanese, title, username;"
+	insertedReadingRow := tx.QueryRowContext(ctx, insertReadingStatement, req.Translation, req.Japanese, req.Title, req.Username)
 	reading, err := ScanReading(insertedReadingRow)
 	if err != nil {
 		return nil, err

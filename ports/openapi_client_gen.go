@@ -17,6 +17,7 @@ type PostReading struct {
 	Japanese    string `json:"japanese"`
 	Title       string `json:"title"`
 	Translation string `json:"translation"`
+	Username    string `json:"username"`
 }
 
 // Reading defines model for Reading.
