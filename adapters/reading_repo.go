@@ -10,7 +10,7 @@ import (
 
 func ScanReading(s Scanner) (*domain.Reading, error) {
 	r := &domain.Reading{}
-	if err := s.Scan(&r.ID, &r.Translation, &r.Japanese, &r.Title); err != nil {
+	if err := s.Scan(&r.ID, &r.Translation, &r.Japanese, &r.Title, &r.Username); err != nil {
 		return nil, err
 	}
 
@@ -51,7 +51,7 @@ func (r ReadingRepository) CreateReading(ctx context.Context, req *domain.Readin
 
 func (r ReadingRepository) GetAllReading(ctx context.Context, username string) ([]*domain.Reading, error) {
 
-	selectStatement := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.username = $1"
+	selectStatement := "SELECT reading.id, reading.translation, reading.japanese, reading.title, reading.username FROM reading WHERE reading.username = $1"
 
 	rows, err := r.db.QueryContext(ctx, selectStatement, username)
 	if err != nil {

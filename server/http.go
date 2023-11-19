@@ -14,7 +14,7 @@ import (
 )
 
 func RunHTTPServer(createHandler func(router chi.Router) http.Handler) {
-	RunHTTPServerOnAddr(":"+os.Getenv("PORT"), createHandler)
+	RunHTTPServerOnAddr(":"+os.Getenv("API_SERVER_ADDR"), createHandler)
 }
 
 func RunHTTPServerOnAddr(addr string, createHandler func(router chi.Router) http.Handler) {
@@ -24,7 +24,7 @@ func RunHTTPServerOnAddr(addr string, createHandler func(router chi.Router) http
 	rootRouter := chi.NewRouter()
 	rootRouter.Mount("/api", createHandler(apiRouter))
 
-	logrus.Info("Starting HTTP server")
+	logrus.Info("Starting HTTP server on " + addr)
 
 	err := http.ListenAndServe(addr, rootRouter)
 	if err != nil {
@@ -55,7 +55,7 @@ func addCorsMiddleware(router *chi.Mux) {
 
 	corsMiddleware := cors.New(cors.Options{
 		AllowedOrigins:   allowedOrigins,
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: true,
