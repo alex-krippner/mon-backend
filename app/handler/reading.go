@@ -2,11 +2,11 @@ package handler
 
 import (
 	"context"
-	"mon-backend/domain"
+	"mon-backend/domain/reading"
 )
 
 type ReadingHandler struct {
-	repo domain.ReadingRepository
+	repo reading.ReadingRepository
 }
 
 type NewReading struct {
@@ -16,7 +16,7 @@ type NewReading struct {
 	Username    string
 }
 
-func NewReadingHandler(repo domain.ReadingRepository) ReadingHandler {
+func NewReadingHandler(repo reading.ReadingRepository) ReadingHandler {
 	if repo == nil {
 		panic("nil reading repo")
 	}
@@ -24,8 +24,10 @@ func NewReadingHandler(repo domain.ReadingRepository) ReadingHandler {
 	return ReadingHandler{repo}
 }
 
-func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewReading) (*domain.Reading, error) {
-	r, err := domain.NewReading(newReading.Translation, newReading.Japanese, newReading.Title, newReading.Username)
+func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewReading) (*reading.Reading, error) {
+
+	r, err := reading.NewReading(newReading.Translation, newReading.Japanese, newReading.Title, newReading.Username)
+
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +40,7 @@ func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewRead
 	return r, nil
 }
 
-func (h ReadingHandler) GetAllReading(ctx context.Context, username string) ([]*domain.Reading, error) {
+func (h ReadingHandler) GetAllReading(ctx context.Context, username string) ([]*reading.Reading, error) {
 	readings, err := h.repo.GetAllReading(ctx, username)
 
 	if err != nil {
@@ -58,7 +60,7 @@ func (h ReadingHandler) DeleteReading(ctx context.Context, id string) error {
 	return nil
 }
 
-func (h ReadingHandler) UpdateReading(ctx context.Context, reading domain.Reading) (*domain.Reading, error) {
+func (h ReadingHandler) UpdateReading(ctx context.Context, reading reading.Reading) (*reading.Reading, error) {
 	updatedReading, err := h.repo.UpdateReading(ctx, reading)
 
 	if err != nil {
