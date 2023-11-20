@@ -5,11 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 
-	"mon-backend/domain"
+	"mon-backend/domain/reading"
 )
 
-func ScanReading(s Scanner) (*domain.Reading, error) {
-	r := &domain.Reading{}
+func ScanReading(s Scanner) (*reading.Reading, error) {
+	r := &reading.Reading{}
 	if err := s.Scan(&r.ID, &r.Translation, &r.Japanese, &r.Title, &r.Username); err != nil {
 		return nil, err
 	}
@@ -27,7 +27,7 @@ func NewReadingRepository(db *sql.DB) *ReadingRepository {
 	}
 }
 
-func (r ReadingRepository) CreateReading(ctx context.Context, req *domain.Reading) (*domain.Reading, error) {
+func (r ReadingRepository) CreateReading(ctx context.Context, req *reading.Reading) (*reading.Reading, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (r ReadingRepository) CreateReading(ctx context.Context, req *domain.Readin
 
 }
 
-func (r ReadingRepository) GetAllReading(ctx context.Context, username string) ([]*domain.Reading, error) {
+func (r ReadingRepository) GetAllReading(ctx context.Context, username string) ([]*reading.Reading, error) {
 
 	selectStatement := "SELECT reading.id, reading.translation, reading.japanese, reading.title, reading.username FROM reading WHERE reading.username = $1"
 
@@ -60,7 +60,7 @@ func (r ReadingRepository) GetAllReading(ctx context.Context, username string) (
 
 	defer rows.Close()
 
-	var readingSlice []*domain.Reading
+	var readingSlice []*reading.Reading
 	for rows.Next() {
 		reading, err := ScanReading(rows)
 		if err != nil {
@@ -73,7 +73,7 @@ func (r ReadingRepository) GetAllReading(ctx context.Context, username string) (
 	return readingSlice, nil
 }
 
-func (r ReadingRepository) UpdateReading(ctx context.Context, reading domain.Reading) (*domain.Reading, error) {
+func (r ReadingRepository) UpdateReading(ctx context.Context, reading reading.Reading) (*reading.Reading, error) {
 	selectReadingById := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.id = $1"
 
 	tx, err := r.db.BeginTx(ctx, nil)
