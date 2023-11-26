@@ -75,7 +75,82 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeletedReading'
-
+  /kanji:
+    post:
+      operationId: addKanji
+      requestBody:
+        description: Data that helps in learning kanji
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostKanji'
+      responses:
+        '201':
+          description: The kanji that has been created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kanji'
+    patch:
+      operationId: updateKanji
+      requestBody:
+        description: The data needed to update a kanji
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Kanji'
+      responses:
+        '200':
+          description: The kanji that has been updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kanji'
+  /kanji/{kanjiId}:
+    parameters:
+      - in: path
+        name: kanjiId
+        required: true
+        description: Unique ID to identify the kanji in the database
+        schema:
+          type: string
+    get:
+      operationId: getKanji
+      responses:
+        '200':
+          description: The kanji that was requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kanji'
+    delete:
+      operationId: deleteKanji
+      responses:
+        '200':
+          description: The id of the kanji that has been deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeletedKanji'
+  /kanjis/{username}:
+    get:
+      operationId: getKanjis
+      parameters:
+        - in: path
+          name: username
+          required: true
+          description: An unique username to identify an user
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All kanji that have been found for the specified username.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Kanjis'
 
 components:
   schemas:
@@ -122,3 +197,67 @@ components:
       properties:
         id:
           type: string
+    Kanji:
+      type: object
+      required: [kanji, exampleSentences, exampleWords, kanjiRating, kunReading, onReading, username, id]
+      properties:
+        kanji:
+          type: string
+        exampleSentences:
+          type: string
+        exampleWords:
+          type: string
+        kanjiRating:
+          type: string
+        kunReading:
+          type: string
+        meanings:
+          type: string
+        onReading:
+          type: string
+        username:
+          type: string
+        id:
+          type: string
+          format: uuid
+    Kanjis:
+      type: object
+      required: [kanjis]
+      properties:
+        readings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Kanji'
+    DeletedKanji:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: string
+    PostKanji:
+      type: object
+      required: [exampleSentences, exampleWords, kanji, kanjiRating, kunReading, meanings, onReading, username]
+      properties:
+        kanji:
+          type: string
+          example: 日
+        exampleSentences:
+          type: string
+          example: これは日本語の原文です
+        exampleWords:
+          type: string
+          example: 日本
+        kanjiRating:
+          type: integer
+        kunReading:
+          type: string
+          example: ひ
+        onReading:
+          type: string
+          example: ニチ
+        username:
+          type: string
+          example: mon_san123
+        meanings:
+          type: string
+          example: day
