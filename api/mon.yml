@@ -151,7 +151,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Kanjis'
-
+  
+  /vocabulary:
+    parameters:
+      - in: query
+        name: username
+        schema:
+          type: string
+        description: The username for whom all vocabulary are requested
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: The amount of vocabulary to be requested
+      - in: query
+        name: id
+        schema:
+          type: string
+        description: The id of the vocabulary that is to be deleted
+    get:
+      operationId: getVocab
+      responses:
+        '200':
+          description: The vocabulary for the specified username
+          content:
+            application/json:
+              schema:
+              $ref: '#/components/schemas/Vocabulary'
+    post:
+      operationId: addVocab
+      requestBody:
+        description: Data that helps in learning vocabulary
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostVocab'
+      responses:
+        '200':
+          description: The vocabulary that was added
+          content:
+            application/json:
+              schema:
+              $ref: '#/components/schemas/Vocab'
+    patch:
+      operationId: updateVocab
+      requestBody:
+        description: Vocabulary that is to be updated
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vocab'
+      responses:
+        '200':
+          description: The vocabulary that was updated
+          content:
+            application/json:
+              schema:
+              $ref: '#/components/schemas/Vocab'
+    delete:
+      operationId: deleteVocab
+      responses:
+        '200':
+          description: The vocabulary that was deleted
 components:
   schemas:
     Reading:
@@ -224,7 +286,7 @@ components:
       type: object
       required: [kanjis]
       properties:
-        readings:
+        kanjis:
           type: array
           items:
             $ref: '#/components/schemas/Kanji'
@@ -261,3 +323,57 @@ components:
         meanings:
           type: string
           example: day
+    Vocab:
+      type: object
+      required: [vocab, definitions, exampleSentences, partsOfSpeech, kanji, vocabRating, username, id]
+      properties:
+        vocab:
+          type: string
+        definitions:
+          type: string
+        exampleSentences:
+          type: string
+        partsOfSpeech:
+          type: string
+        kanji:
+          type: string
+        vocabRating:
+          type: integer
+        username:
+          type: string
+        id:
+          type: string
+    Vocabulary:
+      type: object
+      required: [vocabulary]
+      properties:
+        vocabulary:
+          type: array
+          items:
+            $ref: '#/components/schemas/Vocab'
+    PostVocab:
+      type: object
+      required: [vocab, definitions, exampleSentences, partsOfSpeech, kanji, vocabRating, username]
+      properties:
+        vocab:
+          type: string
+          example: にほん
+        definitions:
+          type: string
+          example: Japan
+        exampleSentences:
+          type: string
+          example: これは日本語の原文です
+        partsOfSpeech:
+          type: string
+          example: noun
+        kanji:
+          type: string
+          example: 日本
+        vocabRating:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: mon_san 
+          
