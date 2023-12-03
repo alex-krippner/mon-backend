@@ -22,6 +22,7 @@ func newApplication(ctx context.Context) app.Application {
 		Handlers: app.Handlers{
 			ReadingHandler: handler.NewReadingHandler(repositories.ReadingRepository),
 			KanjiHandler:   handler.NewKanjiHandler(repositories.KanjiRepository),
+			VocabHandler:   handler.NewVocabHandler(repositories.VocabRepository),
 		},
 	}
 }
