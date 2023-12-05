@@ -4,8 +4,6 @@ go 1.18
 
 require (
 	github.com/go-chi/chi/v5 v5.0.8
-	github.com/gorilla/handlers v1.5.1
-	github.com/gorilla/mux v1.8.0
 	github.com/lib/pq v1.10.5
 	github.com/oapi-codegen/runtime v1.0.0
 	github.com/sirupsen/logrus v1.9.3
@@ -25,7 +23,6 @@ require (
 )
 
 require (
-	github.com/felixge/httpsnoop v1.0.1 // indirect
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/render v1.0.2
 	github.com/google/uuid v1.3.1
