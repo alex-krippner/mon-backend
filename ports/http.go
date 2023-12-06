@@ -3,7 +3,7 @@ package ports
 import (
 	"mon-backend/app"
 	"mon-backend/app/handler"
-	"mon-backend/domain/reading"
+	"mon-backend/domain"
 	"mon-backend/server/httperr"
 	"net/http"
 
@@ -73,7 +73,7 @@ func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request, readin
 }
 
 func (h HttpServer) UpdateReading(w http.ResponseWriter, r *http.Request) {
-	patchReading := reading.Reading{}
+	patchReading := domain.Reading{}
 	if err := render.Decode(r, &patchReading); err != nil {
 		httperr.BadRequest("invalid-request", err, w, r)
 		return

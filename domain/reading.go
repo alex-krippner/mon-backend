@@ -1,4 +1,4 @@
-package reading
+package domain
 
 import (
 	"context"

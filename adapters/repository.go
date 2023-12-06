@@ -2,11 +2,11 @@ package adapters
 
 import (
 	"database/sql"
-	"mon-backend/domain/reading"
+	"mon-backend/domain"
 )
 
 type repositories struct {
-	ReadingRepository reading.ReadingRepository
+	ReadingRepository domain.ReadingRepository
 }
 
 func InitRepositories(db *sql.DB) repositories {
