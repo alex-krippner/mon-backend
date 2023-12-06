@@ -13,7 +13,6 @@ type NewReading struct {
 	Translation string
 	Japanese    string
 	Title       string
-	Username    string
 }
 
 func NewReadingHandler(repo domain.ReadingRepository) ReadingHandler {
@@ -25,7 +24,7 @@ func NewReadingHandler(repo domain.ReadingRepository) ReadingHandler {
 }
 
 func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewReading) (*domain.Reading, error) {
-	r, err := domain.NewReading(newReading.Translation, newReading.Japanese, newReading.Title, newReading.Username)
+	r, err := domain.NewReading(newReading.Translation, newReading.Japanese, newReading.Title)
 	if err != nil {
 		return nil, err
 	}

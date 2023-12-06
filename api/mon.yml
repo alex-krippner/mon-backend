@@ -9,15 +9,15 @@ servers:
         default: localhost
 paths:
   /readings/{username}:
+    parameters:
+      - in: path
+        name: username
+        required: true
+        description: An unique username to identify an user
+        schema:
+          type: string
     get:
       operationId: getReadings
-      parameters:
-        - in: path
-          name: username
-          required: true
-          description: An unique username to identify an user
-          schema:
-            type: string
       responses:
         '200':
           description: Readings that have been found. A reading consists of a Japanese text, translation, and title
@@ -25,7 +25,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Readings'
-  /readings:
     post:
       operationId: createReading
       requestBody:
@@ -102,7 +101,7 @@ components:
             $ref: '#/components/schemas/Reading'
     PostReading:
       type: object
-      required: [translation, japanese, title, username]
+      required: [translation, japanese, title]
       properties:
         translation:
           type: string
@@ -113,9 +112,6 @@ components:
         title:
           type: string
           example: "A descriptive text of the original japanese text"
-        username:
-          type: string
-          example: "songoku123"
     DeletedReading:
       type: object
       required: [id]

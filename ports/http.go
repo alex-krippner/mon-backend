@@ -7,6 +7,7 @@ import (
 	"mon-backend/server/httperr"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
@@ -29,7 +30,6 @@ func (h HttpServer) CreateReading(w http.ResponseWriter, r *http.Request) {
 		Japanese:    postReading.Japanese,
 		Translation: postReading.Translation,
 		Title:       postReading.Title,
-		Username:    postReading.Username,
 	}
 
 	readings, err := h.app.Handlers.ReadingHandler.TranslateReading(r.Context(), newReading)
@@ -43,7 +43,8 @@ func (h HttpServer) CreateReading(w http.ResponseWriter, r *http.Request) {
 	render.Respond(w, r, readings)
 }
 
-func (h HttpServer) GetReadings(w http.ResponseWriter, r *http.Request, username string) {
+func (h HttpServer) GetReadings(w http.ResponseWriter, r *http.Request) {
+	username := chi.URLParam(r, "username")
 	readings, err := h.app.Handlers.ReadingHandler.GetAllReading(r.Context(), username)
 
 	if err != nil {
@@ -56,7 +57,8 @@ func (h HttpServer) GetReadings(w http.ResponseWriter, r *http.Request, username
 
 }
 
-func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request, readingId string) {
+func (h HttpServer) DeleteReading(w http.ResponseWriter, r *http.Request) {
+	readingId := chi.URLParam(r, "readingId")
 	deletedReading := DeletedReading{
 		Id: readingId,
 	}

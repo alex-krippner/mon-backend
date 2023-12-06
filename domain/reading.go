@@ -12,7 +12,6 @@ type Reading struct {
 	Translation string `json:"translation,omitempty"`
 	Japanese    string `json:"japanese,omitempty"`
 	Title       string `json:"title,omitempty"`
-	Username    string `json:"username,omitempty"`
 }
 
 type ReadingRepository interface {
@@ -22,7 +21,7 @@ type ReadingRepository interface {
 	DeleteReading(id string) error
 }
 
-func NewReading(translation string, japanese string, title string, username string) (*Reading, error) {
+func NewReading(translation string, japanese string, title string) (*Reading, error) {
 	if translation == "" {
 		return nil, errors.New("reading translation missing")
 	}
@@ -32,15 +31,11 @@ func NewReading(translation string, japanese string, title string, username stri
 	if title == "" {
 		return nil, errors.New("reading title is missing")
 	}
-	if username == "" {
-		return nil, errors.New("username is missing")
-	}
 
 	return &Reading{
 		ID:          uuid.New().String(),
 		Translation: translation,
 		Japanese:    japanese,
 		Title:       title,
-		Username:    username,
 	}, nil
 }

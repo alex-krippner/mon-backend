@@ -17,14 +17,14 @@ type ServerInterface interface {
 	// (DELETE /reading/{readingId})
 	DeleteReading(w http.ResponseWriter, r *http.Request, readingId string)
 
-	// (PATCH /readings)
-	UpdateReading(w http.ResponseWriter, r *http.Request)
-
-	// (POST /readings)
-	CreateReading(w http.ResponseWriter, r *http.Request)
-
 	// (GET /readings/{username})
 	GetReadings(w http.ResponseWriter, r *http.Request, username string)
+
+	// (PATCH /readings/{username})
+	UpdateReading(w http.ResponseWriter, r *http.Request, username string)
+
+	// (POST /readings/{username})
+	CreateReading(w http.ResponseWriter, r *http.Request, username string)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -36,18 +36,18 @@ func (_ Unimplemented) DeleteReading(w http.ResponseWriter, r *http.Request, rea
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// (PATCH /readings)
-func (_ Unimplemented) UpdateReading(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /readings)
-func (_ Unimplemented) CreateReading(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
 // (GET /readings/{username})
 func (_ Unimplemented) GetReadings(w http.ResponseWriter, r *http.Request, username string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (PATCH /readings/{username})
+func (_ Unimplemented) UpdateReading(w http.ResponseWriter, r *http.Request, username string) {
+	w.WriteHeader(http.StatusNotImplemented)
+}
+
+// (POST /readings/{username})
+func (_ Unimplemented) CreateReading(w http.ResponseWriter, r *http.Request, username string) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -86,36 +86,6 @@ func (siw *ServerInterfaceWrapper) DeleteReading(w http.ResponseWriter, r *http.
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// UpdateReading operation middleware
-func (siw *ServerInterfaceWrapper) UpdateReading(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateReading(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// CreateReading operation middleware
-func (siw *ServerInterfaceWrapper) CreateReading(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.CreateReading(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
 // GetReadings operation middleware
 func (siw *ServerInterfaceWrapper) GetReadings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -133,6 +103,58 @@ func (siw *ServerInterfaceWrapper) GetReadings(w http.ResponseWriter, r *http.Re
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.GetReadings(w, r, username)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// UpdateReading operation middleware
+func (siw *ServerInterfaceWrapper) UpdateReading(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "username" -------------
+	var username string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "username", runtime.ParamLocationPath, chi.URLParam(r, "username"), &username)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.UpdateReading(w, r, username)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// CreateReading operation middleware
+func (siw *ServerInterfaceWrapper) CreateReading(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var err error
+
+	// ------------- Path parameter "username" -------------
+	var username string
+
+	err = runtime.BindStyledParameterWithLocation("simple", false, "username", runtime.ParamLocationPath, chi.URLParam(r, "username"), &username)
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.CreateReading(w, r, username)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -259,13 +281,13 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		r.Delete(options.BaseURL+"/reading/{readingId}", wrapper.DeleteReading)
 	})
 	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/readings", wrapper.UpdateReading)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/readings", wrapper.CreateReading)
-	})
-	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/readings/{username}", wrapper.GetReadings)
+	})
+	r.Group(func(r chi.Router) {
+		r.Patch(options.BaseURL+"/readings/{username}", wrapper.UpdateReading)
+	})
+	r.Group(func(r chi.Router) {
+		r.Post(options.BaseURL+"/readings/{username}", wrapper.CreateReading)
 	})
 
 	return r
