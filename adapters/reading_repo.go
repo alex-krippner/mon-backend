@@ -74,7 +74,7 @@ func (r ReadingRepository) GetAllReading(ctx context.Context, username string) (
 }
 
 func (r ReadingRepository) UpdateReading(ctx context.Context, reading reading.Reading) (*reading.Reading, error) {
-	selectReadingById := "SELECT reading.id, reading.translation, reading.japanese, reading.title, reading.username FROM reading WHERE reading.id = $1"
+	selectReadingById := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.id = $1"
 
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -83,8 +83,8 @@ func (r ReadingRepository) UpdateReading(ctx context.Context, reading reading.Re
 
 	defer tx.Rollback()
 
-	updateReadingStatement := "UPDATE reading SET translation = COALESCE($1, translation), japanese = COALESCE($2, japanese), title = COALESCE($3, title), username = COALESCE($4, username) WHERE id = $5 RETURNING id"
-	_, err = tx.ExecContext(ctx, updateReadingStatement, reading.Translation, reading.Japanese, reading.Title, reading.Username, reading.ID)
+	updateReadingStatement := "UPDATE reading SET translation = COALESCE($1, translation), japanese = COALESCE($2, japanese), title = COALESCE($3, title) WHERE id = $4 RETURNING id"
+	_, err = tx.ExecContext(ctx, updateReadingStatement, reading.Translation, reading.Japanese, reading.Title, reading.ID)
 	if err != nil {
 		return nil, err
 	}
