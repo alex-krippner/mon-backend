@@ -32,7 +32,7 @@ type Kanji struct {
 
 // Kanjis defines model for Kanjis.
 type Kanjis struct {
-	Kanjis []Kanji `json:"kanjis"`
+	Readings *[]Kanji `json:"readings,omitempty"`
 }
 
 // PostKanji defines model for PostKanji.
@@ -55,17 +55,6 @@ type PostReading struct {
 	Username    string `json:"username"`
 }
 
-// PostVocab defines model for PostVocab.
-type PostVocab struct {
-	Definitions      string `json:"definitions"`
-	ExampleSentences string `json:"exampleSentences"`
-	Kanji            string `json:"kanji"`
-	PartsOfSpeech    string `json:"partsOfSpeech"`
-	Username         string `json:"username"`
-	Vocab            string `json:"vocab"`
-	VocabRating      int    `json:"vocabRating"`
-}
-
 // Reading defines model for Reading.
 type Reading struct {
 	Id          *openapi_types.UUID `json:"id,omitempty"`
@@ -79,66 +68,6 @@ type Readings struct {
 	Readings []Reading `json:"readings"`
 }
 
-// Vocab defines model for Vocab.
-type Vocab struct {
-	Definitions      string `json:"definitions"`
-	ExampleSentences string `json:"exampleSentences"`
-	Id               string `json:"id"`
-	Kanji            string `json:"kanji"`
-	PartsOfSpeech    string `json:"partsOfSpeech"`
-	Username         string `json:"username"`
-	Vocab            string `json:"vocab"`
-	VocabRating      int    `json:"vocabRating"`
-}
-
-// DeleteVocabParams defines parameters for DeleteVocab.
-type DeleteVocabParams struct {
-	// Username The username for whom all vocabulary are requested
-	Username *string `form:"username,omitempty" json:"username,omitempty"`
-
-	// Limit The amount of vocabulary to be requested
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Id The id of the vocabulary that is to be deleted
-	Id *string `form:"id,omitempty" json:"id,omitempty"`
-}
-
-// GetVocabParams defines parameters for GetVocab.
-type GetVocabParams struct {
-	// Username The username for whom all vocabulary are requested
-	Username *string `form:"username,omitempty" json:"username,omitempty"`
-
-	// Limit The amount of vocabulary to be requested
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Id The id of the vocabulary that is to be deleted
-	Id *string `form:"id,omitempty" json:"id,omitempty"`
-}
-
-// UpdateVocabParams defines parameters for UpdateVocab.
-type UpdateVocabParams struct {
-	// Username The username for whom all vocabulary are requested
-	Username *string `form:"username,omitempty" json:"username,omitempty"`
-
-	// Limit The amount of vocabulary to be requested
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Id The id of the vocabulary that is to be deleted
-	Id *string `form:"id,omitempty" json:"id,omitempty"`
-}
-
-// AddVocabParams defines parameters for AddVocab.
-type AddVocabParams struct {
-	// Username The username for whom all vocabulary are requested
-	Username *string `form:"username,omitempty" json:"username,omitempty"`
-
-	// Limit The amount of vocabulary to be requested
-	Limit *int `form:"limit,omitempty" json:"limit,omitempty"`
-
-	// Id The id of the vocabulary that is to be deleted
-	Id *string `form:"id,omitempty" json:"id,omitempty"`
-}
-
 // UpdateKanjiJSONRequestBody defines body for UpdateKanji for application/json ContentType.
 type UpdateKanjiJSONRequestBody = Kanji
 
@@ -150,9 +79,3 @@ type UpdateReadingJSONRequestBody = Reading
 
 // CreateReadingJSONRequestBody defines body for CreateReading for application/json ContentType.
 type CreateReadingJSONRequestBody = PostReading
-
-// UpdateVocabJSONRequestBody defines body for UpdateVocab for application/json ContentType.
-type UpdateVocabJSONRequestBody = Vocab
-
-// AddVocabJSONRequestBody defines body for AddVocab for application/json ContentType.
-type AddVocabJSONRequestBody = PostVocab

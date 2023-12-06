@@ -11,5 +11,4 @@ type Application struct {
 type Handlers struct {
 	ReadingHandler handler.ReadingHandler
 	KanjiHandler   handler.KanjiHandler
-	VocabHandler   handler.VocabHandler
 }

@@ -40,18 +40,6 @@ type ServerInterface interface {
 
 	// (GET /readings/{username})
 	GetReadings(w http.ResponseWriter, r *http.Request, username string)
-
-	// (DELETE /vocabulary)
-	DeleteVocab(w http.ResponseWriter, r *http.Request, params DeleteVocabParams)
-
-	// (GET /vocabulary)
-	GetVocab(w http.ResponseWriter, r *http.Request, params GetVocabParams)
-
-	// (PATCH /vocabulary)
-	UpdateVocab(w http.ResponseWriter, r *http.Request, params UpdateVocabParams)
-
-	// (POST /vocabulary)
-	AddVocab(w http.ResponseWriter, r *http.Request, params AddVocabParams)
 }
 
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
@@ -100,26 +88,6 @@ func (_ Unimplemented) CreateReading(w http.ResponseWriter, r *http.Request) {
 
 // (GET /readings/{username})
 func (_ Unimplemented) GetReadings(w http.ResponseWriter, r *http.Request, username string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (DELETE /vocabulary)
-func (_ Unimplemented) DeleteVocab(w http.ResponseWriter, r *http.Request, params DeleteVocabParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /vocabulary)
-func (_ Unimplemented) GetVocab(w http.ResponseWriter, r *http.Request, params GetVocabParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (PATCH /vocabulary)
-func (_ Unimplemented) UpdateVocab(w http.ResponseWriter, r *http.Request, params UpdateVocabParams) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /vocabulary)
-func (_ Unimplemented) AddVocab(w http.ResponseWriter, r *http.Request, params AddVocabParams) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
@@ -322,182 +290,6 @@ func (siw *ServerInterfaceWrapper) GetReadings(w http.ResponseWriter, r *http.Re
 	handler.ServeHTTP(w, r.WithContext(ctx))
 }
 
-// DeleteVocab operation middleware
-func (siw *ServerInterfaceWrapper) DeleteVocab(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params DeleteVocabParams
-
-	// ------------- Optional query parameter "username" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "username", r.URL.Query(), &params.Username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "id" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "id", r.URL.Query(), &params.Id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteVocab(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetVocab operation middleware
-func (siw *ServerInterfaceWrapper) GetVocab(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params GetVocabParams
-
-	// ------------- Optional query parameter "username" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "username", r.URL.Query(), &params.Username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "id" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "id", r.URL.Query(), &params.Id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetVocab(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// UpdateVocab operation middleware
-func (siw *ServerInterfaceWrapper) UpdateVocab(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params UpdateVocabParams
-
-	// ------------- Optional query parameter "username" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "username", r.URL.Query(), &params.Username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "id" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "id", r.URL.Query(), &params.Id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateVocab(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// AddVocab operation middleware
-func (siw *ServerInterfaceWrapper) AddVocab(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// Parameter object where we will unmarshal all parameters from the context
-	var params AddVocabParams
-
-	// ------------- Optional query parameter "username" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "username", r.URL.Query(), &params.Username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "limit" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "limit", r.URL.Query(), &params.Limit)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "limit", Err: err})
-		return
-	}
-
-	// ------------- Optional query parameter "id" -------------
-
-	err = runtime.BindQueryParameter("form", true, false, "id", r.URL.Query(), &params.Id)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "id", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AddVocab(w, r, params)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
 type UnescapedCookieParamError struct {
 	ParamName string
 	Err       error
@@ -637,18 +429,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 	})
 	r.Group(func(r chi.Router) {
 		r.Get(options.BaseURL+"/readings/{username}", wrapper.GetReadings)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/vocabulary", wrapper.DeleteVocab)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/vocabulary", wrapper.GetVocab)
-	})
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/vocabulary", wrapper.UpdateVocab)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/vocabulary", wrapper.AddVocab)
 	})
 
 	return r
