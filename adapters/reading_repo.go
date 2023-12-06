@@ -73,7 +73,7 @@ func (r ReadingRepository) GetAllReading(ctx context.Context, username string) (
 	return readingSlice, nil
 }
 
-func (r ReadingRepository) UpdateReading(ctx context.Context, reading domain.Reading) (*domain.Reading, error) {
+func (r ReadingRepository) UpdateReading(ctx context.Context, reading *domain.Reading) (*domain.Reading, error) {
 	selectReadingById := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.id = $1"
 
 	tx, err := r.db.BeginTx(ctx, nil)
@@ -90,12 +90,12 @@ func (r ReadingRepository) UpdateReading(ctx context.Context, reading domain.Rea
 	}
 
 	row := tx.QueryRowContext(ctx, selectReadingById, reading.ID)
-	updatedReading, scanErr := ScanReading(row)
+	reading, scanErr := ScanReading(row)
 	if err = tx.Commit(); err != nil {
 		return nil, err
 	}
 
-	return updatedReading, scanErr
+	return reading, scanErr
 }
 
 func (r ReadingRepository) DeleteReading(id string) error {

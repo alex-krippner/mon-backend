@@ -17,7 +17,7 @@ type Reading struct {
 type ReadingRepository interface {
 	CreateReading(ctx context.Context, req *Reading) (*Reading, error)
 	GetAllReading(ctx context.Context, username string) ([]*Reading, error)
-	UpdateReading(ctx context.Context, req Reading) (*Reading, error)
+	UpdateReading(ctx context.Context, r *Reading) (*Reading, error)
 	DeleteReading(id string) error
 }
 

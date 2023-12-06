@@ -56,13 +56,3 @@ func (h ReadingHandler) DeleteReading(ctx context.Context, id string) error {
 
 	return nil
 }
-
-func (h ReadingHandler) UpdateReading(ctx context.Context, reading domain.Reading) (*domain.Reading, error) {
-	updatedReading, err := h.repo.UpdateReading(ctx, reading)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return updatedReading, nil
-}
