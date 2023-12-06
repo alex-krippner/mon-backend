@@ -3,6 +3,7 @@ module mon-backend
 go 1.18
 
 require (
+	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
@@ -13,7 +14,6 @@ require (
 
 require (
 	github.com/ajg/form v1.5.1 // indirect
-	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect

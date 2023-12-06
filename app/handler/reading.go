@@ -36,13 +36,3 @@ func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewRead
 
 	return r, nil
 }
-
-func (h ReadingHandler) DeleteReading(ctx context.Context, id string) error {
-	err := h.repo.DeleteReading(id)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
