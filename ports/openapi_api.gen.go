@@ -14,21 +14,6 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (PATCH /kanji)
-	UpdateKanji(w http.ResponseWriter, r *http.Request)
-
-	// (POST /kanji)
-	AddKanji(w http.ResponseWriter, r *http.Request)
-
-	// (DELETE /kanji/{kanjiId})
-	DeleteKanji(w http.ResponseWriter, r *http.Request, kanjiId string)
-
-	// (GET /kanji/{kanjiId})
-	GetKanji(w http.ResponseWriter, r *http.Request, kanjiId string)
-
-	// (GET /kanjis/{username})
-	GetKanjis(w http.ResponseWriter, r *http.Request, username string)
-
 	// (DELETE /reading/{readingId})
 	DeleteReading(w http.ResponseWriter, r *http.Request, readingId string)
 
@@ -45,31 +30,6 @@ type ServerInterface interface {
 // Unimplemented server implementation that returns http.StatusNotImplemented for each endpoint.
 
 type Unimplemented struct{}
-
-// (PATCH /kanji)
-func (_ Unimplemented) UpdateKanji(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (POST /kanji)
-func (_ Unimplemented) AddKanji(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (DELETE /kanji/{kanjiId})
-func (_ Unimplemented) DeleteKanji(w http.ResponseWriter, r *http.Request, kanjiId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /kanji/{kanjiId})
-func (_ Unimplemented) GetKanji(w http.ResponseWriter, r *http.Request, kanjiId string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
-
-// (GET /kanjis/{username})
-func (_ Unimplemented) GetKanjis(w http.ResponseWriter, r *http.Request, username string) {
-	w.WriteHeader(http.StatusNotImplemented)
-}
 
 // (DELETE /reading/{readingId})
 func (_ Unimplemented) DeleteReading(w http.ResponseWriter, r *http.Request, readingId string) {
@@ -99,114 +59,6 @@ type ServerInterfaceWrapper struct {
 }
 
 type MiddlewareFunc func(http.Handler) http.Handler
-
-// UpdateKanji operation middleware
-func (siw *ServerInterfaceWrapper) UpdateKanji(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.UpdateKanji(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// AddKanji operation middleware
-func (siw *ServerInterfaceWrapper) AddKanji(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.AddKanji(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// DeleteKanji operation middleware
-func (siw *ServerInterfaceWrapper) DeleteKanji(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "kanjiId" -------------
-	var kanjiId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "kanjiId", runtime.ParamLocationPath, chi.URLParam(r, "kanjiId"), &kanjiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "kanjiId", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.DeleteKanji(w, r, kanjiId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetKanji operation middleware
-func (siw *ServerInterfaceWrapper) GetKanji(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "kanjiId" -------------
-	var kanjiId string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "kanjiId", runtime.ParamLocationPath, chi.URLParam(r, "kanjiId"), &kanjiId)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "kanjiId", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetKanji(w, r, kanjiId)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetKanjis operation middleware
-func (siw *ServerInterfaceWrapper) GetKanjis(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	var err error
-
-	// ------------- Path parameter "username" -------------
-	var username string
-
-	err = runtime.BindStyledParameterWithLocation("simple", false, "username", runtime.ParamLocationPath, chi.URLParam(r, "username"), &username)
-	if err != nil {
-		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "username", Err: err})
-		return
-	}
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetKanjis(w, r, username)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
 
 // DeleteReading operation middleware
 func (siw *ServerInterfaceWrapper) DeleteReading(w http.ResponseWriter, r *http.Request) {
@@ -403,21 +255,6 @@ func HandlerWithOptions(si ServerInterface, options ChiServerOptions) http.Handl
 		ErrorHandlerFunc:   options.ErrorHandlerFunc,
 	}
 
-	r.Group(func(r chi.Router) {
-		r.Patch(options.BaseURL+"/kanji", wrapper.UpdateKanji)
-	})
-	r.Group(func(r chi.Router) {
-		r.Post(options.BaseURL+"/kanji", wrapper.AddKanji)
-	})
-	r.Group(func(r chi.Router) {
-		r.Delete(options.BaseURL+"/kanji/{kanjiId}", wrapper.DeleteKanji)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/kanji/{kanjiId}", wrapper.GetKanji)
-	})
-	r.Group(func(r chi.Router) {
-		r.Get(options.BaseURL+"/kanjis/{username}", wrapper.GetKanjis)
-	})
 	r.Group(func(r chi.Router) {
 		r.Delete(options.BaseURL+"/reading/{readingId}", wrapper.DeleteReading)
 	})

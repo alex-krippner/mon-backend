@@ -7,44 +7,9 @@ import (
 	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
-// DeletedKanji defines model for DeletedKanji.
-type DeletedKanji struct {
-	Id string `json:"id"`
-}
-
 // DeletedReading defines model for DeletedReading.
 type DeletedReading struct {
 	Id string `json:"id"`
-}
-
-// Kanji defines model for Kanji.
-type Kanji struct {
-	ExampleSentences string             `json:"exampleSentences"`
-	ExampleWords     string             `json:"exampleWords"`
-	Id               openapi_types.UUID `json:"id"`
-	Kanji            string             `json:"kanji"`
-	KanjiRating      string             `json:"kanjiRating"`
-	KunReading       string             `json:"kunReading"`
-	Meanings         *string            `json:"meanings,omitempty"`
-	OnReading        string             `json:"onReading"`
-	Username         string             `json:"username"`
-}
-
-// Kanjis defines model for Kanjis.
-type Kanjis struct {
-	Readings *[]Kanji `json:"readings,omitempty"`
-}
-
-// PostKanji defines model for PostKanji.
-type PostKanji struct {
-	ExampleSentences string `json:"exampleSentences"`
-	ExampleWords     string `json:"exampleWords"`
-	Kanji            string `json:"kanji"`
-	KanjiRating      int    `json:"kanjiRating"`
-	KunReading       string `json:"kunReading"`
-	Meanings         string `json:"meanings"`
-	OnReading        string `json:"onReading"`
-	Username         string `json:"username"`
 }
 
 // PostReading defines model for PostReading.
@@ -67,12 +32,6 @@ type Reading struct {
 type Readings struct {
 	Readings []Reading `json:"readings"`
 }
-
-// UpdateKanjiJSONRequestBody defines body for UpdateKanji for application/json ContentType.
-type UpdateKanjiJSONRequestBody = Kanji
-
-// AddKanjiJSONRequestBody defines body for AddKanji for application/json ContentType.
-type AddKanjiJSONRequestBody = PostKanji
 
 // UpdateReadingJSONRequestBody defines body for UpdateReading for application/json ContentType.
 type UpdateReadingJSONRequestBody = Reading
