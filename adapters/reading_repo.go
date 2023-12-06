@@ -49,11 +49,11 @@ func (r ReadingRepository) CreateReading(ctx context.Context, req *domain.Readin
 
 }
 
-func (r ReadingRepository) GetAllReading(ctx context.Context, username string) ([]*domain.Reading, error) {
+func (r ReadingRepository) GetAllReading(ctx context.Context) ([]*domain.Reading, error) {
 
-	selectStatement := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading WHERE reading.username = $1"
+	selectStatement := "SELECT reading.id, reading.translation, reading.japanese, reading.title FROM reading"
 
-	rows, err := r.db.QueryContext(ctx, selectStatement, username)
+	rows, err := r.db.QueryContext(ctx, selectStatement)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve readings: %w", err)
 	}

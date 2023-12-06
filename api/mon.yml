@@ -8,19 +8,12 @@ servers:
       hostname:
         default: localhost
 paths:
-  /readings/{username}:
-    parameters:
-      - in: path
-        name: username
-        required: true
-        description: An unique username to identify an user
-        schema:
-          type: string
+  /readings:
     get:
       operationId: getReadings
       responses:
         '200':
-          description: Readings that have been found. A reading consists of a Japanese text, translation, and title
+          description: Readings that have been found
           content:
             application/json:
               schema:

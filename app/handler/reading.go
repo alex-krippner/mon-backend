@@ -37,16 +37,6 @@ func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewRead
 	return r, nil
 }
 
-func (h ReadingHandler) GetAllReading(ctx context.Context, username string) ([]*domain.Reading, error) {
-	readings, err := h.repo.GetAllReading(ctx, username)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return readings, nil
-}
-
 func (h ReadingHandler) DeleteReading(ctx context.Context, id string) error {
 	err := h.repo.DeleteReading(id)
 
