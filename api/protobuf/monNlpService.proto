@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package monNlp;
+
+option go_package = "mon-backend/monNlp";
+
+message TokenizeRequest {
+    string text = 1;
+}
+
+message TokenizeResponse {
+    repeated string tokens = 1;
+}
+
+service MonNlpService {
+    rpc tokenize(TokenizeRequest) returns (TokenizeResponse);
+}
