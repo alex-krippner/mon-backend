@@ -6,7 +6,8 @@ import (
 )
 
 type ReadingHandler struct {
-	repo reading.ReadingRepository
+	repo          reading.ReadingRepository
+	monNlpService MonNlpService
 }
 
 type NewReading struct {
@@ -16,12 +17,12 @@ type NewReading struct {
 	Username    string
 }
 
-func NewReadingHandler(repo reading.ReadingRepository) ReadingHandler {
+func NewReadingHandler(repo reading.ReadingRepository, monNlpService MonNlpService) ReadingHandler {
 	if repo == nil {
 		panic("nil reading repo")
 	}
 
-	return ReadingHandler{repo}
+	return ReadingHandler{repo, monNlpService}
 }
 
 func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewReading) (*reading.Reading, error) {

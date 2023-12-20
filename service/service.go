@@ -7,11 +7,22 @@ import (
 	"mon-backend/app/handler"
 )
 
-func NewApplication(ctx context.Context) app.Application {
-	return newApplication(ctx)
+func NewApplication(ctx context.Context) (app.Application, func()) {
+	monNlpClient, closeMonNlpClient, err := adapters.NewMonNlpClient()
+
+	if err != nil {
+		panic(err)
+	}
+
+	monNlpGrpc := adapters.NewMonNlpGrpc(monNlpClient)
+
+	return newApplication(ctx, monNlpGrpc),
+		func() {
+			_ = closeMonNlpClient()
+		}
 }
 
-func newApplication(ctx context.Context) app.Application {
+func newApplication(ctx context.Context, monNlpService handler.MonNlpService) app.Application {
 	db, err := adapters.GetDatabase()
 	if err != nil {
 		panic(err)
@@ -20,7 +31,7 @@ func newApplication(ctx context.Context) app.Application {
 
 	return app.Application{
 		Handlers: app.Handlers{
-			ReadingHandler: handler.NewReadingHandler(repositories.ReadingRepository),
+			ReadingHandler: handler.NewReadingHandler(repositories.ReadingRepository, monNlpService),
 			KanjiHandler:   handler.NewKanjiHandler(repositories.KanjiRepository),
 			VocabHandler:   handler.NewVocabHandler(repositories.VocabRepository),
 		},
