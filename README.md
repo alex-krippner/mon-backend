@@ -1,22 +1,17 @@
 # Mon backend
 
----
-
 ## Table of Contents
 
 1. [General Info](#general-info)
 2. [Installation and build](#installation-and-build)
 3. [Database migration](#database-migration)
+4. [Generate protobuf files](#proto)
 
 ### General Info
-
----
 
 Dockerized backend for mon written in Go with a Postgres database.
 
 ## Installation and Build
-
----
 
 Build container  
 `docker compose build`
@@ -38,8 +33,6 @@ Update modules
 
 ## Database migration
 
----
-
 Create new migrations  
 `docker compose --profile tools run create-migration <migration_filename>`
 
@@ -48,3 +41,8 @@ Run migration
 
 Down migration  
 `docker compose --profile tools run migrate-down`
+
+## Generate protobuf service
+
+Create service  
+`make proto`

@@ -2,10 +2,11 @@ package handler
 
 import (
 	"context"
+	"mon-backend/domain/reading"
 )
 
 type TokenizeResponse struct {
-	Value []string
+	Tokens []reading.Token
 }
 
 type MonNlpService interface {
