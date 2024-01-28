@@ -9,7 +9,22 @@ message TokenizeRequest {
 }
 
 message TokenizeResponse {
-    repeated string tokens = 1;
+    repeated Token tokens = 1;
+}
+
+message Token {
+  string text = 1;
+  string orth_ = 2;
+  string lemma_ = 3;
+  string norm_ = 4;
+  string lower_ = 5;
+  string shape_ = 6;
+  string prefix_ = 7;
+  string suffix_ = 8;
+  string pos_ = 9;
+  string tag_ = 10;
+  string dep_ = 11;
+  string lang_ = 12;
 }
 
 service MonNlpService {

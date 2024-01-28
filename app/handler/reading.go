@@ -38,6 +38,13 @@ func (h ReadingHandler) TranslateReading(ctx context.Context, newReading NewRead
 		return nil, err
 	}
 
+	tokenizedText, err := h.monNlpService.TokenizeText(ctx, newReading.Japanese)
+
+	if err != nil {
+		return nil, err
+	}
+	r.Tokens = tokenizedText.Tokens
+
 	return r, nil
 }
 
